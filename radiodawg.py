@@ -5,6 +5,7 @@ import sys
 TIMEOUT_SEC = 1
 DNS_TO_QUERY = "8.8.8.8"
 MUTE = " > /dev/null 2>&1"
+MIN_DROPPED_PACKETS = 2
 
 def stop_playback():
     print("Stopping Volumio playback...")
@@ -23,6 +24,20 @@ def is_net_reachable():
     else:
         return False
 
+def is_connection_down():
+    dropped_packets = 0
+    if is_net_reachable():
+        return False
+    else:
+        dropped_packets += 1
+        while dropped_packets <= MIN_DROPPED_PACKETS:
+            if dropped_packets == MIN_DROPPED_PACKETS:
+                return True
+            else:
+                if is_net_reachable():
+                    return False
+                dropped_packets += 1
+
 def is_streaming_webradio():
     response = os.system("volumio status | grep webradio" + MUTE)
     if response is 0:
@@ -32,8 +47,9 @@ def is_streaming_webradio():
 
 while True:
     if is_streaming_webradio():
-        if not is_net_reachable():
-            print(DNS_TO_QUERY + " is not reachable, stopping Volumio playback")
+        if is_connection_down():
+            print(DNS_TO_QUERY + " is not reachable (" + str(MIN_DROPPED_PACKETS) 
+                    + " subsequently dropped packets), stopping Volumio playback")
             sys.stdout.flush()
             stop_playback()
             while not is_net_reachable():
