@@ -1,0 +1,11 @@
+Description=run radiodawg Python script at startup
+After=network.target
+After=local-fs-pre.target
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/usr/bin/python /usr/bin/radiodawg.py
+
+[Install]
+WantedBy=multi-user.target
