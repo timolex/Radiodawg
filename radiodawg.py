@@ -6,6 +6,7 @@ TIMEOUT_SEC = 1
 DNS_TO_QUERY = "8.8.8.8"
 MUTE = " > /dev/null 2>&1"
 MIN_DROPPED_PACKETS = 2
+CONSIDER_PLAYBACK_STATUS = True
 
 def stop_playback():
     print("Stopping Volumio playback...")
@@ -37,8 +38,11 @@ def is_connection_down():
                 dropped_packets += 1
 
 def is_streaming_webradio():
-    response = os.system("volumio status | grep webradio" + MUTE)
-    if response is 0:
+    is_in_playback_state = os.system("volumio status | grep play" + MUTE)
+    if CONSIDER_PLAYBACK_STATUS and not is_in_playback_state is 0:
+        return False
+    is_type_webradio = os.system("volumio status | grep webradio" + MUTE)
+    if is_type_webradio is 0:
         return True
     else:
         return False
