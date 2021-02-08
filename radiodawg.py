@@ -9,12 +9,10 @@ MIN_DROPPED_PACKETS = 2
 
 def stop_playback():
     print("Stopping Volumio playback...")
-    sys.stdout.flush()
     os.system("volumio stop")
 
 def start_playback():
     print("Starting Volumio playback...")
-    sys.stdout.flush()
     os.system("volumio play")
 
 def is_net_reachable():
@@ -50,14 +48,11 @@ while True:
         if is_connection_down():
             print(DNS_TO_QUERY + " is not reachable (" + str(MIN_DROPPED_PACKETS) 
                     + " subsequently dropped packets), stopping Volumio playback")
-            sys.stdout.flush()
             stop_playback()
             while not is_net_reachable():
                 print(DNS_TO_QUERY + " is still not reachable, trying again in " + str(TIMEOUT_SEC) + " sec")
-                sys.stdout.flush()
                 time.sleep(TIMEOUT_SEC)
             print(DNS_TO_QUERY + " is reachable again, resuming Volumio playback now")
-            sys.stdout.flush()
             start_playback()
 
     time.sleep(TIMEOUT_SEC)
